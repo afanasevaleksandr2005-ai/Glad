@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Грань войны — лаунчер</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@600;700;800&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #0c0d06; }
+  body { font-family: 'Rajdhani', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  a { color: #c8a24d; text-decoration: none; }
+  a:hover { color: #e0c07a; }
+  .stencil { font-family: 'Big Shoulders Stencil', 'Arial Narrow', sans-serif; }
+  .mono { font-family: 'Share Tech Mono', monospace; }
+  @keyframes dotpulse { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  .launcher { transform-origin: top center; }
+  @media (max-width: 1480px) {
+    .launcher { transform: scale(calc(100vw / 1480)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="launcher" style="position: relative; width: 1440px; height: 900px; background: #121309; overflow: hidden; color: #eee7d6;">
+
+  <!-- background: vignette + topo lines + grain -->
+  <div style="position: absolute; inset: 0; background:
+      radial-gradient(ellipse 900px 700px at 72% 38%, rgba(60,58,32,0.55), transparent 60%),
+      linear-gradient(180deg, #171808 0%, #121309 55%, #0c0d06 100%);"></div>
+
+  <svg style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.16;" viewBox="0 0 1440 900" preserveAspectRatio="none">
+    <path d="M-40,620 C 240,560 380,700 640,640 S 1040,540 1180,600 S 1400,560 1480,610" stroke="#c8a24d" stroke-width="1" fill="none"/>
+    <path d="M-40,680 C 260,610 400,760 660,700 S 1060,600 1200,660 S 1400,620 1480,670" stroke="#c8a24d" stroke-width="1" fill="none"/>
+    <path d="M-40,740 C 280,660 420,820 680,760 S 1080,660 1220,720 S 1400,680 1480,730" stroke="#c8a24d" stroke-width="1" fill="none"/>
+    <path d="M-40,800 C 300,710 440,880 700,820 S 1100,720 1240,780 S 1400,740 1480,790" stroke="#c8a24d" stroke-width="1" fill="none"/>
+  </svg>
+
+  <svg style="position: absolute; left: 0; bottom: 0; width: 100%; height: 260px; opacity: 0.5;" viewBox="0 0 1440 260" preserveAspectRatio="none">
+    <path d="M0,260 L0,190 L90,150 L140,190 L140,120 L165,120 L165,80 L180,80 L180,120 L210,120 L260,175 L340,140 L420,190 L520,150 L560,190 L640,160 L720,200 L800,150 L820,150 L820,110 L840,110 L840,150 L880,150 L960,185 L1040,155 L1120,195 L1220,150 L1300,185 L1440,160 L1440,260 Z" fill="#0a0b04"/>
+  </svg>
+
+  <svg width="0" height="0" style="position:absolute;">
+    <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  </svg>
+  <div style="position: absolute; inset: 0; filter: url(#grain); opacity: 0.05; mix-blend-mode: overlay; pointer-events: none;"></div>
+
+  <!-- content -->
+  <div style="position: relative; height: 100%; display: flex; flex-direction: column; padding: 36px 44px; gap: 24px;">
+
+    <!-- top bar -->
+    <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+      <div style="display: flex; flex-direction: row; align-items: center; gap: 16px;">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+          <polygon points="26,3 47,15 47,37 26,49 5,37 5,15" stroke="#c8a24d" stroke-width="1.6"/>
+          <circle cx="26" cy="26" r="14" stroke="#c8a24d" stroke-width="1.2" opacity="0.6"/>
+          <path d="M26 14 L29 24 L39 26 L29 28 L26 38 L23 28 L13 26 L23 24 Z" fill="#c8a24d"/>
+        </svg>
+        <div style="display: flex; flex-direction: column; gap: 2px;">
+          <div class="stencil" style="font-size: 34px; font-weight: 700; letter-spacing: 2px; line-height: 1; color: #f2ead6;">ГРАНЬ ВОЙНЫ</div>
+          <div class="mono" style="font-size: 11px; letter-spacing: 4px; color: #c8a24d;">ARMA 3 · ТАКТИЧЕСКИЙ МИЛСИМ-СЕРВЕР</div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
+        <div style="display: flex; flex-direction: row; align-items: center; gap: 12px;">
+          <div style="width: 46px; height: 46px; border-radius: 50%; border: 1.5px solid #c8a24d; display: flex; align-items: center; justify-content: center; background: #1c1d13;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c9c3ac" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 1px;">
+            <div style="font-size: 16px; font-weight: 600; letter-spacing: 1px; color: #f2ead6;">WOLF-3</div>
+            <div class="mono" style="font-size: 10px; letter-spacing: 2px; color: #9c9686;">СТАРШИЙ СЕРЖАНТ</div>
+          </div>
+        </div>
+        <div style="width: 1px; height: 32px; background: #3a3a26;"></div>
+        <div style="width: 42px; height: 42px; border: 1px solid #3a3a26; display: flex; align-items: center; justify-content: center; clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9c3ac" stroke-width="1.6"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V19a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- main row -->
+    <div style="display: flex; flex-direction: row; gap: 28px; flex-grow: 1; min-height: 0;">
+
+      <!-- news panel -->
+      <div style="width: 320px; flex-shrink: 0; background: rgba(26,27,17,0.86); border: 1px solid #3a3a26; clip-path: polygon(0 14px, 14px 0, 100% 0, 100% 100%, 0 100%); padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+          <div class="stencil" style="font-size: 18px; letter-spacing: 2px; color: #f2ead6;">БОЕВАЯ СВОДКА</div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8a24d" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div style="height: 1px; background-image: linear-gradient(to right, #4a4a30 0 6px, transparent 6px 10px); background-size: 10px 1px;"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px;">
+              <span class="mono" style="font-size: 10px; letter-spacing: 1px; padding: 2px 7px; border: 1px solid #7fae55; color: #7fae55;">UPDATE</span>
+              <span class="mono" style="font-size: 10px; color: #7a7566;">27.08</span>
+            </div>
+            <div style="font-size: 15px; font-weight: 600; color: #f2ead6;">Обновление операции «Периметр»</div>
+            <div style="font-size: 12.5px; color: #a39d8c; line-height: 1.4;">Новая тактическая миссия и переработан респавн техники.</div>
+          </div>
+          <div style="height: 1px; background-image: linear-gradient(to right, #33331f 0 6px, transparent 6px 10px); background-size: 10px 1px;"></div>
+
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px;">
+              <span class="mono" style="font-size: 10px; letter-spacing: 1px; padding: 2px 7px; border: 1px solid #c8a24d; color: #c8a24d;">EVENT</span>
+              <span class="mono" style="font-size: 10px; color: #7a7566;">24.08</span>
+            </div>
+            <div style="font-size: 15px; font-weight: 600; color: #f2ead6;">Ночной рейд — набор отряда</div>
+            <div style="font-size: 12.5px; color: #a39d8c; line-height: 1.4;">Открыта запись на кооперативную операцию, до 12 бойцов.</div>
+          </div>
+          <div style="height: 1px; background-image: linear-gradient(to right, #33331f 0 6px, transparent 6px 10px); background-size: 10px 1px;"></div>
+
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 8px;">
+              <span class="mono" style="font-size: 10px; letter-spacing: 1px; padding: 2px 7px; border: 1px solid #b0503f; color: #b0503f;">MAINT</span>
+              <span class="mono" style="font-size: 10px; color: #7a7566;">21.08</span>
+            </div>
+            <div style="font-size: 15px; font-weight: 600; color: #f2ead6;">Плановые технические работы</div>
+            <div style="font-size: 12.5px; color: #a39d8c; line-height: 1.4;">Сервер недоступен 22.08 с 03:00 до 06:00 МСК.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- hero / play -->
+      <div style="flex-grow: 1; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; border: 1px solid #33331f;">
+        <svg style="position: absolute; top: 14px; left: 14px;" width="26" height="26" viewBox="0 0 26 26"><path d="M1,10 1,1 10,1" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position: absolute; top: 14px; right: 14px;" width="26" height="26" viewBox="0 0 26 26"><path d="M16,1 25,1 25,10" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position: absolute; bottom: 14px; left: 14px;" width="26" height="26" viewBox="0 0 26 26"><path d="M1,16 1,25 10,25" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position: absolute; bottom: 14px; right: 14px;" width="26" height="26" viewBox="0 0 26 26"><path d="M25,16 25,25 16,25" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+
+        <div class="mono" style="font-size: 11px; letter-spacing: 5px; color: #8a8570;">СЕКТОР 12 // ОЖИДАНИЕ ОТРЯДА</div>
+
+        <div style="display: flex; flex-direction: row; align-items: center; gap: 18px;">
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 8px;">
+            <div style="width: 9px; height: 9px; border-radius: 50%; background: #7fae55; animation: dotpulse 1.8s ease-in-out infinite;"></div>
+            <span class="mono" style="font-size: 13px; letter-spacing: 2px; color: #7fae55;">ОНЛАЙН</span>
+          </div>
+          <div style="width: 1px; height: 14px; background: #3a3a26;"></div>
+          <span class="mono" style="font-size: 13px; letter-spacing: 1px; color: #c9c3ac;">84 / 150 ИГРОКОВ</span>
+          <div style="width: 1px; height: 14px; background: #3a3a26;"></div>
+          <span class="mono" style="font-size: 13px; letter-spacing: 1px; color: #c9c3ac;">PING 28ms</span>
+        </div>
+
+        <button style="margin-top: 6px; background: #c8a24d; border: none; padding: 22px 74px; clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;">
+          <span class="stencil" style="font-size: 30px; font-weight: 700; letter-spacing: 3px; color: #14150c;">ИГРАТЬ</span>
+          <span class="mono" style="font-size: 10px; letter-spacing: 3px; color: #14150c; opacity: 0.75;">ПОДКЛЮЧИТЬСЯ К СЕРВЕРУ</span>
+        </button>
+      </div>
+
+      <!-- mods panel -->
+      <div style="width: 320px; flex-shrink: 0; background: rgba(26,27,17,0.86); border: 1px solid #3a3a26; clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px)); padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+        <div style="display: flex; flex-direction: row; align-items: baseline; justify-content: space-between;">
+          <div class="stencil" style="font-size: 18px; letter-spacing: 2px; color: #f2ead6;">МОДУЛИ</div>
+          <span class="mono" style="font-size: 10px; color: #8a8570;">18 / 20</span>
+        </div>
+        <div style="height: 1px; background-image: linear-gradient(to right, #4a4a30 0 6px, transparent 6px 10px); background-size: 10px 1px;"></div>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7fae55" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg>
+            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+              <span style="font-size: 13.5px; color: #e6dfc9;">CBA_A3</span>
+            </div>
+            <span class="mono" style="font-size: 11px; color: #7a7566;">42 MB</span>
+          </div>
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7fae55" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg>
+            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+              <span style="font-size: 13.5px; color: #e6dfc9;">Task Force Radio</span>
+            </div>
+            <span class="mono" style="font-size: 11px; color: #7a7566;">18 MB</span>
+          </div>
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8a24d" stroke-width="2"><path d="M12 4v4M12 16v4M4 12h4M16 12h4"/></svg>
+            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+              <span style="font-size: 13.5px; color: #e6dfc9;">Zeus Enhanced</span>
+              <span class="mono" style="font-size: 10px; color: #c8a24d;">ОБНОВЛЕНИЕ...</span>
+            </div>
+            <span class="mono" style="font-size: 11px; color: #7a7566;">76 MB</span>
+          </div>
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7fae55" stroke-width="2"><path d="M4 12l5 5L20 6"/></svg>
+            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+              <span style="font-size: 13.5px; color: #e6dfc9;">Tactical Gear Expansion</span>
+            </div>
+            <span class="mono" style="font-size: 11px; color: #7a7566;">210 MB</span>
+          </div>
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b0503f" stroke-width="2"><path d="M12 8v5M12 16.5v.01"/><path d="M10.3 3.9 2.5 18a1.8 1.8 0 0 0 1.6 2.6h15.8a1.8 1.8 0 0 0 1.6-2.6L13.7 3.9a1.8 1.8 0 0 0-3.4 0Z"/></svg>
+            <div style="display: flex; flex-direction: column; flex-grow: 1;">
+              <span style="font-size: 13.5px; color: #e6dfc9;">Perimeter Terrain Pack</span>
+              <span class="mono" style="font-size: 10px; color: #b0503f;">УСТАРЕЛ</span>
+            </div>
+            <span class="mono" style="font-size: 11px; color: #7a7566;">340 MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- bottom bar -->
+    <div style="display: flex; flex-direction: row; align-items: center; gap: 28px;">
+      <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 7px;">
+        <div style="display: flex; flex-direction: row; justify-content: space-between; align-items: baseline;">
+          <span class="mono" style="font-size: 11px; letter-spacing: 1px; color: #9c9686;">ЗАГРУЗКА: perimeter_op_v3.7.pbo</span>
+          <span class="mono" style="font-size: 11px; letter-spacing: 1px; color: #c9c3ac;">4.2 MB/s · ОСТАЛОСЬ 2 МИН</span>
+        </div>
+        <div style="position: relative; height: 8px; background: #201f14; border: 1px solid #3a3a26;">
+          <div style="position: absolute; top: 0; left: 0; bottom: 0; width: 63%; background: #c8a24d;"></div>
+        </div>
+      </div>
+      <div class="mono" style="font-size: 20px; color: #c8a24d; width: 52px; text-align: right;">63%</div>
+      <div style="width: 1px; height: 34px; background: #3a3a26;"></div>
+
+      <div style="display: flex; flex-direction: row; gap: 10px;">
+        <div style="width: 40px; height: 40px; border: 1px solid #3a3a26; display: flex; align-items: center; justify-content: center;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c9c3ac" stroke-width="1.7"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+        </div>
+        <div style="width: 40px; height: 40px; border: 1px solid #3a3a26; display: flex; align-items: center; justify-content: center;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c9c3ac" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.8 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.8-3.8-9S9.5 5.6 12 3Z"/></svg>
+        </div>
+        <div style="width: 40px; height: 40px; border: 1px solid #3a3a26; display: flex; align-items: center; justify-content: center;">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#c9c3ac" stroke-width="1.7"><path d="M21 11.5a8.5 8.5 0 1 1-4-7.2"/><path d="M21 3v6h-6"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
