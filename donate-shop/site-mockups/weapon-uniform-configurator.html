@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Грань войны — конструктор снаряжения</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil:wght@600;700;800&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: #0c0d06; }
+  body { font-family: 'Rajdhani', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  a { color: #c8a24d; text-decoration: none; }
+  a:hover { color: #e0c07a; }
+  button { font-family: inherit; }
+  .stencil { font-family: 'Big Shoulders Stencil', 'Arial Narrow', sans-serif; }
+  .mono { font-family: 'Share Tech Mono', monospace; }
+  .app { transform-origin: top center; }
+  @media (max-width: 1480px) { .app { transform: scale(calc(100vw / 1480)); } }
+
+  .dash { height: 1px; background-image: linear-gradient(to right, #4a4a30 0 6px, transparent 6px 10px); background-size: 10px 1px; }
+  .panel {
+    background: rgba(26,27,17,0.86);
+    border: 1px solid #3a3a26;
+  }
+  .cut-tl { clip-path: polygon(0 14px, 14px 0, 100% 0, 100% 100%, 0 100%); }
+  .cut-br { clip-path: polygon(0 0, 100% 0, 100% 100%, 14px 100%, 0 calc(100% - 14px)); }
+
+  .tab-btn {
+    background: transparent; border: 1px solid #3a3a26; color: #9c9686;
+    padding: 10px 26px; font-family: 'Rajdhani',sans-serif; font-weight: 600;
+    font-size: 15px; letter-spacing: 2px; cursor: pointer;
+    clip-path: polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px);
+  }
+  .tab-btn.active { background: #c8a24d; border-color: #c8a24d; color: #14150c; }
+
+  .slot-card { display: flex; flex-direction: column; gap: 10px; }
+  .slot-title { display:flex; flex-direction:row; align-items:center; justify-content:space-between; }
+  .swatch-row { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px; }
+  .swatch {
+    background: #1a1b11; border: 1px solid #3a3a26; color: #c9c3ac;
+    padding: 10px 14px; font-size: 13.5px; cursor: pointer; min-height: 44px;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px;
+    clip-path: polygon(8px 0, 100% 0, 100% 100%, 0 100%, 0 8px);
+  }
+  .swatch .price { font-family: 'Share Tech Mono', monospace; font-size: 10.5px; color: #7a7566; }
+  .swatch.active { border-color: #c8a24d; background: #2a2410; color: #f2ead6; }
+  .swatch.active .price { color: #c8a24d; }
+
+  .stat-row { display: flex; flex-direction: column; gap: 4px; }
+  .stat-label { display: flex; flex-direction: row; justify-content: space-between; font-size: 12.5px; color: #9c9686; }
+  .stat-track { position: relative; height: 5px; background: #201f14; border: 1px solid #33331f; }
+  .stat-fill { position: absolute; top:0; left:0; bottom:0; background: #c8a24d; }
+
+  .buy-btn {
+    background: #c8a24d; border: none; padding: 16px 0; width: 100%; cursor: pointer;
+    clip-path: polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+  }
+  .buy-btn .label { font-family: 'Big Shoulders Stencil', sans-serif; font-size: 22px; font-weight: 700; letter-spacing: 2px; color: #14150c; }
+</style>
+</head>
+<body>
+
+<div class="app" style="width: 1440px; min-height: 900px; background: #121309; color: #eee7d6; position: relative; overflow: hidden;">
+
+  <div style="position:absolute; inset:0; background:
+      radial-gradient(ellipse 900px 700px at 72% 20%, rgba(60,58,32,0.45), transparent 60%),
+      linear-gradient(180deg, #171808 0%, #121309 55%, #0c0d06 100%);"></div>
+
+  <div style="position: relative; display: flex; flex-direction: column; padding: 32px 44px 44px; gap: 22px;">
+
+    <!-- header -->
+    <div style="display:flex; flex-direction:row; align-items:center; justify-content:space-between;">
+      <div style="display:flex; flex-direction:row; align-items:center; gap:14px;">
+        <svg width="40" height="40" viewBox="0 0 52 52" fill="none">
+          <polygon points="26,3 47,15 47,37 26,49 5,37 5,15" stroke="#c8a24d" stroke-width="1.6"/>
+          <path d="M26 14 L29 24 L39 26 L29 28 L26 38 L23 28 L13 26 L23 24 Z" fill="#c8a24d"/>
+        </svg>
+        <div style="display:flex; flex-direction:column; gap:1px;">
+          <div class="stencil" style="font-size:24px; font-weight:700; letter-spacing:1.5px; line-height:1; color:#f2ead6;">ГРАНЬ ВОЙНЫ</div>
+          <div class="mono" style="font-size:10px; letter-spacing:3px; color:#c8a24d;">МАГАЗИН · КАСТОМНОЕ СНАРЯЖЕНИЕ</div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:row; gap:10px;">
+        <button id="tabWeapon" class="tab-btn active">ОРУЖИЕ</button>
+        <button id="tabUniform" class="tab-btn">ЭКИПИРОВКА</button>
+      </div>
+
+      <div style="display:flex; flex-direction:row; align-items:center; gap:12px;">
+        <div style="width:40px; height:40px; border-radius:50%; border:1.5px solid #c8a24d; display:flex; align-items:center; justify-content:center; background:#1c1d13;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c9c3ac" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+        </div>
+        <div style="font-size:15px; font-weight:600; color:#f2ead6;">WOLF-3</div>
+      </div>
+    </div>
+    <div class="dash"></div>
+
+    <!-- ============ WEAPON TAB ============ -->
+    <div id="viewWeapon" style="display:flex; flex-direction:row; gap:24px;">
+
+      <!-- slots -->
+      <div class="panel cut-tl" style="width:340px; flex-shrink:0; padding:22px; display:flex; flex-direction:column; gap:20px;">
+        <div class="stencil" style="font-size:17px; letter-spacing:1.5px; color:#f2ead6;">СБОРКА: M4A1</div>
+        <div id="weaponSlots" style="display:flex; flex-direction:column; gap:18px;"></div>
+      </div>
+
+      <!-- preview -->
+      <div class="panel" style="flex-grow:1; padding:26px; display:flex; flex-direction:column; gap:18px; position:relative;">
+        <svg style="position:absolute; top:12px; left:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M1,10 1,1 10,1" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position:absolute; top:12px; right:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M16,1 25,1 25,10" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position:absolute; bottom:12px; left:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M1,16 1,25 10,25" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position:absolute; bottom:12px; right:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M25,16 25,25 16,25" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+
+        <div style="flex-grow:1; display:flex; align-items:center; justify-content:center;">
+          <svg width="520" height="140" viewBox="0 0 520 140" fill="none">
+            <rect x="60" y="60" width="330" height="20" rx="2" fill="#2a2b1c" stroke="#4a4a30"/>
+            <rect x="40" y="66" width="30" height="8" fill="#2a2b1c" stroke="#4a4a30"/>
+            <rect x="150" y="40" width="90" height="16" fill="#22230f" stroke="#4a4a30"/>
+            <rect x="380" y="55" width="70" height="30" rx="4" fill="#2a2b1c" stroke="#4a4a30"/>
+            <rect x="120" y="80" width="16" height="50" rx="2" fill="#22230f" stroke="#4a4a30"/>
+            <rect x="230" y="80" width="60" height="34" rx="3" fill="#22230f" stroke="#4a4a30"/>
+          </svg>
+        </div>
+
+        <div class="mono" style="font-size:11px; letter-spacing:3px; color:#8a8570; text-align:center;">ПРЕДПРОСМОТР &middot; УСЛОВНОЕ ИЗОБРАЖЕНИЕ</div>
+
+        <div id="weaponChips" style="display:flex; flex-direction:row; flex-wrap:wrap; gap:8px; justify-content:center;"></div>
+      </div>
+
+      <!-- stats + buy -->
+      <div class="panel cut-br" style="width:320px; flex-shrink:0; padding:22px; display:flex; flex-direction:column; gap:16px;">
+        <div class="stencil" style="font-size:17px; letter-spacing:1.5px; color:#f2ead6;">ХАРАКТЕРИСТИКИ</div>
+        <div id="weaponStats" style="display:flex; flex-direction:column; gap:12px;"></div>
+        <div class="dash"></div>
+        <div style="display:flex; flex-direction:row; justify-content:space-between; align-items:baseline;">
+          <span class="mono" style="font-size:11px; letter-spacing:1px; color:#9c9686;">ИТОГО</span>
+          <span id="weaponPrice" class="mono" style="font-size:22px; color:#c8a24d;">0 ₽</span>
+        </div>
+        <button class="buy-btn"><span class="label">КУПИТЬ</span></button>
+      </div>
+    </div>
+
+    <!-- ============ UNIFORM TAB ============ -->
+    <div id="viewUniform" style="display:none; flex-direction:row; gap:24px;">
+
+      <div class="panel cut-tl" style="width:340px; flex-shrink:0; padding:22px; display:flex; flex-direction:column; gap:20px;">
+        <div class="stencil" style="font-size:17px; letter-spacing:1.5px; color:#f2ead6;">ЭКИПИРОВКА БОЙЦА</div>
+        <div id="uniformSlots" style="display:flex; flex-direction:column; gap:18px;"></div>
+      </div>
+
+      <div class="panel" style="flex-grow:1; padding:26px; display:flex; flex-direction:column; gap:18px; position:relative;">
+        <svg style="position:absolute; top:12px; left:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M1,10 1,1 10,1" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position:absolute; top:12px; right:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M16,1 25,1 25,10" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position:absolute; bottom:12px; left:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M1,16 1,25 10,25" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+        <svg style="position:absolute; bottom:12px; right:12px;" width="22" height="22" viewBox="0 0 26 26"><path d="M25,16 25,25 16,25" stroke="#c8a24d" stroke-width="1.6" fill="none"/></svg>
+
+        <div style="flex-grow:1; display:flex; align-items:center; justify-content:center;">
+          <svg width="180" height="360" viewBox="0 0 180 360" fill="none">
+            <circle cx="90" cy="36" r="26" fill="#22230f" stroke="#4a4a30"/>
+            <rect x="50" y="66" width="80" height="120" rx="10" fill="#2a2b1c" stroke="#4a4a30"/>
+            <rect x="58" y="80" width="64" height="70" rx="4" fill="#22230f" stroke="#4a4a30"/>
+            <rect x="20" y="72" width="26" height="90" rx="8" fill="#2a2b1c" stroke="#4a4a30"/>
+            <rect x="134" y="72" width="26" height="90" rx="8" fill="#2a2b1c" stroke="#4a4a30"/>
+            <rect x="55" y="186" width="30" height="120" rx="8" fill="#2a2b1c" stroke="#4a4a30"/>
+            <rect x="95" y="186" width="30" height="120" rx="8" fill="#2a2b1c" stroke="#4a4a30"/>
+          </svg>
+        </div>
+
+        <div class="mono" style="font-size:11px; letter-spacing:3px; color:#8a8570; text-align:center;">ПРЕДПРОСМОТР &middot; УСЛОВНОЕ ИЗОБРАЖЕНИЕ</div>
+
+        <div id="uniformChips" style="display:flex; flex-direction:row; flex-wrap:wrap; gap:8px; justify-content:center;"></div>
+      </div>
+
+      <div class="panel cut-br" style="width:320px; flex-shrink:0; padding:22px; display:flex; flex-direction:column; gap:16px;">
+        <div class="stencil" style="font-size:17px; letter-spacing:1.5px; color:#f2ead6;">СОСТАВ КОМПЛЕКТА</div>
+        <div id="uniformSummary" style="display:flex; flex-direction:column; gap:10px;"></div>
+        <div class="dash"></div>
+        <div style="display:flex; flex-direction:row; justify-content:space-between; align-items:baseline;">
+          <span class="mono" style="font-size:11px; letter-spacing:1px; color:#9c9686;">ИТОГО</span>
+          <span id="uniformPrice" class="mono" style="font-size:22px; color:#c8a24d;">0 ₽</span>
+        </div>
+        <button class="buy-btn"><span class="label">КУПИТЬ</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- демо-данные (замените реальным прайсом с сервера) ----
+var weaponBase = { verticalRecoil: 62, horizontalRecoil: 58, ergonomics: 55, accuracy: 48, weight: 3.4, price: 499 };
+
+var weaponSlotDefs = [
+  { key: 'optic', label: 'Оптика', options: [
+      { id: 'none',  label: 'Без прицела', price: 0,   d: {} },
+      { id: 'kobra', label: 'Kobra',       price: 149, d: { ergonomics: 5, accuracy: 8 } },
+      { id: 'acog',  label: 'ACOG 4x',     price: 299, d: { ergonomics: -3, accuracy: 20, weight: 0.4 } }
+  ]},
+  { key: 'muzzle', label: 'Дульная насадка', options: [
+      { id: 'none', label: 'Без насадки',   price: 0,   d: {} },
+      { id: 'flash',label: 'Пламегаситель', price: 79,  d: { verticalRecoil: 3, weight: 0.1 } },
+      { id: 'supp', label: 'Глушитель',     price: 179, d: { verticalRecoil: 8, horizontalRecoil: 5, weight: 0.5 } }
+  ]},
+  { key: 'bipod', label: 'Сошки', options: [
+      { id: 'none', label: 'Без сошек', price: 0,  d: {} },
+      { id: 'std',  label: 'Сошки',     price: 99, d: { verticalRecoil: 12, ergonomics: -6, weight: 0.3 } }
+  ]}
+];
+
+var uniformSlotDefs = [
+  { key: 'camo', label: 'Расцветка', options: [
+      { id: 'multicam', label: 'Мультикам', price: 799 },
+      { id: 'olive',    label: 'Олива',     price: 799 },
+      { id: 'black',    label: 'Чёрный',    price: 849 }
+  ]},
+  { key: 'vest', label: 'Разгрузка', options: [
+      { id: 'none',  label: 'Без разгрузки', price: 0 },
+      { id: 'plate', label: 'Плитоноска',    price: 599 }
+  ]},
+  { key: 'backpack', label: 'Рюкзак', options: [
+      { id: 'none',    label: 'Без рюкзака',      price: 0 },
+      { id: 'assault', label: 'Штурмовой рюкзак', price: 349 }
+  ]},
+  { key: 'headgear', label: 'Головной убор', options: [
+      { id: 'none',   label: 'Без головного убора', price: 0 },
+      { id: 'boonie', label: 'Панама',               price: 149 },
+      { id: 'helmet', label: 'Тактический шлем',     price: 399 }
+  ]}
+];
+
+var weaponState = { optic: 'none', muzzle: 'none', bipod: 'none' };
+var uniformState = { camo: 'multicam', vest: 'none', backpack: 'none', headgear: 'none' };
+
+function findOption(defs, key, id) {
+  var def = defs.filter(function(d){ return d.key === key; })[0];
+  return def.options.filter(function(o){ return o.id === id; })[0];
+}
+
+function renderSlots(containerId, defs, state, onChange) {
+  var container = document.getElementById(containerId);
+  container.innerHTML = '';
+  defs.forEach(function(def) {
+    var card = document.createElement('div');
+    card.className = 'slot-card';
+    var title = document.createElement('div');
+    title.className = 'mono';
+    title.style.cssText = 'font-size:11px; letter-spacing:2px; color:#8a8570;';
+    title.textContent = def.label.toUpperCase();
+    card.appendChild(title);
+
+    var row = document.createElement('div');
+    row.className = 'swatch-row';
+    def.options.forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.className = 'swatch' + (state[def.key] === opt.id ? ' active' : '');
+      btn.innerHTML = '<span>' + opt.label + '</span><span class="price mono">' + (opt.price ? '+' + opt.price + ' ₽' : 'включено') + '</span>';
+      btn.onclick = function() { state[def.key] = opt.id; onChange(); };
+      row.appendChild(btn);
+    });
+    card.appendChild(row);
+    container.appendChild(card);
+  });
+}
+
+function renderWeapon() {
+  renderSlots('weaponSlots', weaponSlotDefs, weaponState, renderWeapon);
+
+  var stats = Object.assign({}, weaponBase);
+  var price = weaponBase.price;
+  var chips = [];
+  weaponSlotDefs.forEach(function(def) {
+    var opt = findOption(weaponSlotDefs, def.key, weaponState[def.key]);
+    price += opt.price;
+    if (opt.id !== 'none') chips.push(opt.label);
+    Object.keys(opt.d || {}).forEach(function(k) { stats[k] += opt.d[k]; });
+  });
+
+  var statsEl = document.getElementById('weaponStats');
+  var statDefs = [
+    ['verticalRecoil', 'Верт. отдача', 100],
+    ['horizontalRecoil', 'Гориз. отдача', 100],
+    ['ergonomics', 'Эргономика', 100],
+    ['accuracy', 'Точность', 100]
+  ];
+  statsEl.innerHTML = '';
+  statDefs.forEach(function(s) {
+    var val = Math.max(0, Math.min(100, stats[s[0]]));
+    var row = document.createElement('div');
+    row.className = 'stat-row';
+    row.innerHTML = '<div class="stat-label"><span>' + s[1] + '</span><span class="mono">' + Math.round(stats[s[0]]) + '</span></div>' +
+      '<div class="stat-track"><div class="stat-fill" style="width:' + val + '%;"></div></div>';
+    statsEl.appendChild(row);
+  });
+
+  document.getElementById('weaponPrice').textContent = price.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('weaponChips').innerHTML = ['M4A1'].concat(chips).map(function(c){
+    return '<span class="mono" style="font-size:11px; letter-spacing:1px; color:#c9c3ac; border:1px solid #3a3a26; padding:5px 10px;">' + c + '</span>';
+  }).join('');
+}
+
+function renderUniform() {
+  renderSlots('uniformSlots', uniformSlotDefs, uniformState, renderUniform);
+
+  var price = 0;
+  var chips = [];
+  var summaryEl = document.getElementById('uniformSummary');
+  summaryEl.innerHTML = '';
+  uniformSlotDefs.forEach(function(def) {
+    var opt = findOption(uniformSlotDefs, def.key, uniformState[def.key]);
+    price += opt.price;
+    chips.push(opt.label);
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex; flex-direction:row; justify-content:space-between; font-size:13.5px; color:#e6dfc9;';
+    row.innerHTML = '<span>' + def.label + '</span><span style="color:#9c9686;">' + opt.label + '</span>';
+    summaryEl.appendChild(row);
+  });
+
+  document.getElementById('uniformPrice').textContent = price.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('uniformChips').innerHTML = chips.map(function(c){
+    return '<span class="mono" style="font-size:11px; letter-spacing:1px; color:#c9c3ac; border:1px solid #3a3a26; padding:5px 10px;">' + c + '</span>';
+  }).join('');
+}
+
+document.getElementById('tabWeapon').onclick = function() {
+  document.getElementById('tabWeapon').classList.add('active');
+  document.getElementById('tabUniform').classList.remove('active');
+  document.getElementById('viewWeapon').style.display = 'flex';
+  document.getElementById('viewUniform').style.display = 'none';
+};
+document.getElementById('tabUniform').onclick = function() {
+  document.getElementById('tabUniform').classList.add('active');
+  document.getElementById('tabWeapon').classList.remove('active');
+  document.getElementById('viewUniform').style.display = 'flex';
+  document.getElementById('viewWeapon').style.display = 'none';
+};
+
+renderWeapon();
+renderUniform();
+</script>
+</body>
+</html>

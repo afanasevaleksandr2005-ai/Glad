@@ -1,0 +1,41 @@
+{
+  "_comment": "Единственный источник classname'ов. Сайт и БД оперируют только полем id. Замените classname на реальные имена классов ваших модов.",
+
+  "weapons": {
+    "base": [
+      { "id": "m4a1",    "label": "M4A1",         "classname": "hlc_rifle_m4a1_MOE_black", "price_kopecks": 5000000 },
+      { "id": "ak12",    "label": "АК-12",        "classname": "rhs_weap_ak12",             "price_kopecks": 5500000 }
+    ],
+    "optic": [
+      { "id": "none",       "label": "Без прицела", "classname": null,                 "price_kopecks": 0 },
+      { "id": "acog_optic", "label": "ACOG 4x",     "classname": "optic_ACO_grn_norail", "price_kopecks": 800000 },
+      { "id": "kobra_optic","label": "Kobra",       "classname": "optic_Holosight",      "price_kopecks": 350000 }
+    ],
+    "muzzle": [
+      { "id": "none",     "label": "Без насадки", "classname": null,               "price_kopecks": 0 },
+      { "id": "supp_std", "label": "Глушитель",   "classname": "muzzle_snds_H",     "price_kopecks": 450000 }
+    ],
+    "bipod": [
+      { "id": "none",      "label": "Без сошек", "classname": null,           "price_kopecks": 0 },
+      { "id": "bipod_std", "label": "Сошки",     "classname": "bipod_01_F_snd", "price_kopecks": 300000 }
+    ]
+  },
+
+  "uniforms": {
+    "uniform": [
+      { "id": "tactical_multicam", "label": "Тактический костюм (мультикам)", "classname": "U_B_CTRG_Soldier_F", "price_kopecks": 2000000 }
+    ],
+    "vest": [
+      { "id": "none",              "label": "Без разгрузки",   "classname": null,              "price_kopecks": 0 },
+      { "id": "plate_carrier_ranger","label": "Плитоноска",    "classname": "V_PlateCarrier2_rgr", "price_kopecks": 1500000 }
+    ],
+    "backpack": [
+      { "id": "none",             "label": "Без рюкзака", "classname": null,             "price_kopecks": 0 },
+      { "id": "assault_pack_ocp", "label": "Штурмовой рюкзак", "classname": "B_AssaultPack_rgr", "price_kopecks": 700000 }
+    ],
+    "headgear": [
+      { "id": "none",          "label": "Без головного убора", "classname": null,     "price_kopecks": 0 },
+      { "id": "boonie_multicam","label": "Панама",             "classname": "H_Booniehat_khk", "price_kopecks": 300000 }
+    ]
+  }
+}
