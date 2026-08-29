@@ -6,6 +6,7 @@
 <title>Грань войны — мастерская оружия</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; background: #0a0b0d; }
@@ -115,6 +116,7 @@
     <div class="viewer-label">
       <div class="oswald" style="font-size:20px; color:#eef1f4; letter-spacing:1px;">M4A1</div>
       <div id="weaponChipsLine" class="mono" style="font-size:11px; color:#5c636b;"></div>
+      <div id="modelBadge" class="mono" style="font-size:9.5px; color:#4a505a; margin-top:4px;"></div>
     </div>
     <canvas id="gunCanvas"></canvas>
     <div class="viewer-hint mono">ЗАЖМИТЕ И ПОТЯНИТЕ, ЧТОБЫ ПОВЕРНУТЬ</div>
@@ -389,12 +391,78 @@ var bipodMeshes = {};
 })();
 
 function updateGunAttachments() {
+  if (loadedModel) {
+    setNodeVisibleByPrefix('optic_', weaponState.optic);
+    setNodeVisibleByPrefix('muzzle_', weaponState.muzzle);
+    setNodeVisibleByPrefix('bipod_', weaponState.bipod);
+    return;
+  }
   Object.keys(opticMeshes).forEach(function (k) { opticMeshes[k].visible = weaponState.optic === k; });
   Object.keys(muzzleMeshes).forEach(function (k) { muzzleMeshes[k].visible = weaponState.muzzle === k; });
   Object.keys(bipodMeshes).forEach(function (k) { bipodMeshes[k].visible = weaponState.bipod === k; });
 }
 
 gunGroup.rotation.y = -0.5;
+
+// ----------------------------------------------------------------------
+// Настоящая 3D-модель (GLB). Положите файл рядом со страницей по пути
+// MODEL_URL — вьюер сам подхватит его вместо процедурной болванки.
+// Экспортируйте модель так, чтобы объекты насадок были ОТДЕЛЬНЫМИ узлами
+// с именами "optic_none" / "optic_kobra" / "optic_acog",
+// "muzzle_none" / "muzzle_flash" / "muzzle_supp",
+// "bipod_none" / "bipod_std" — тогда переключение слотов в конфигураторе
+// будет само скрывать/показывать нужные части модели, без правок кода.
+// Если файла нет (404) — остаёмся на процедурной болванке, страница
+// работает как и раньше.
+// ----------------------------------------------------------------------
+var MODEL_URL = 'models/m4a1.glb';
+var loadedModel = null;
+var attachmentNodes = {};
+var activeGroup = gunGroup; // группа, которую крутим мышью — переключится на модель при загрузке
+
+function setNodeVisibleByPrefix(prefix, activeId) {
+  Object.keys(attachmentNodes).forEach(function (name) {
+    if (name.indexOf(prefix) === 0) attachmentNodes[name].visible = false;
+  });
+  var target = attachmentNodes[prefix + activeId];
+  if (target) target.visible = true;
+}
+
+function setModelBadge(text) {
+  var el = document.getElementById('modelBadge');
+  if (el) el.textContent = text;
+}
+
+if (window.THREE && THREE.GLTFLoader) {
+  var loader = new THREE.GLTFLoader();
+  loader.load(
+    MODEL_URL,
+    function (gltf) {
+      gunGroup.visible = false;
+      loadedModel = gltf.scene;
+
+      var box = new THREE.Box3().setFromObject(loadedModel);
+      var size = new THREE.Vector3(); box.getSize(size);
+      var center = new THREE.Vector3(); box.getCenter(center);
+      loadedModel.position.sub(center);
+      var maxDim = Math.max(size.x, size.y, size.z) || 1;
+      loadedModel.scale.setScalar(3.4 / maxDim);
+
+      scene.add(loadedModel);
+      activeGroup = loadedModel;
+
+      loadedModel.traverse(function (node) { if (node.name) attachmentNodes[node.name] = node; });
+      updateGunAttachments();
+      setModelBadge('3D: МОДЕЛЬ ЗАГРУЖЕНА — ' + MODEL_URL);
+    },
+    undefined,
+    function () {
+      setModelBadge('3D: ПРОЦЕДУРНАЯ БОЛВАНКА (нет ' + MODEL_URL + ')');
+    }
+  );
+} else {
+  setModelBadge('3D: ПРОЦЕДУРНАЯ БОЛВАНКА');
+}
 
 function resizeRenderer() {
   var w = canvas.clientWidth, h = canvas.clientHeight;
@@ -415,14 +483,14 @@ canvas.addEventListener('pointermove', function (e) {
   if (!dragging) return;
   var dx = e.clientX - lastX, dy = e.clientY - lastY;
   lastX = e.clientX; lastY = e.clientY;
-  gunGroup.rotation.y += dx * 0.008;
-  gunGroup.rotation.x = Math.max(-0.6, Math.min(0.6, gunGroup.rotation.x + dy * 0.008));
+  activeGroup.rotation.y += dx * 0.008;
+  activeGroup.rotation.x = Math.max(-0.6, Math.min(0.6, activeGroup.rotation.x + dy * 0.008));
 });
 window.addEventListener('pointerup', function () { dragging = false; canvas.classList.remove('dragging'); });
 
 function animate() {
   requestAnimationFrame(animate);
-  if (!dragging && idleSpin) gunGroup.rotation.y += 0.0025;
+  if (!dragging && idleSpin) activeGroup.rotation.y += 0.0025;
   renderer.render(scene, camera);
 }
 
