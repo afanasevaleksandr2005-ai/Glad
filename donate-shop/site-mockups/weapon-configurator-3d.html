@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Грань войны — мастерская оружия</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: #0a0b0d; }
+  body {
+    font-family: 'Rajdhani', sans-serif; color: #d9dde1;
+    display: flex; flex-direction: column; min-height: 100vh;
+  }
+  a { color: #4fc3f7; text-decoration: none; }
+  button { font-family: inherit; }
+  .oswald { font-family: 'Oswald', sans-serif; text-transform: uppercase; }
+  .mono { font-family: 'Share Tech Mono', monospace; }
+
+  .app-bg {
+    position: fixed; inset: 0; z-index: -1;
+    background:
+      radial-gradient(ellipse 1000px 700px at 50% 0%, rgba(60,110,140,0.12), transparent 60%),
+      linear-gradient(180deg, #101215 0%, #0a0b0d 60%);
+  }
+
+  header {
+    display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+    padding: 18px 32px; border-bottom: 1px solid #23262b;
+  }
+  .logo-row { display: flex; flex-direction: row; align-items: center; gap: 12px; }
+  .title { font-size: 20px; font-weight: 600; letter-spacing: 1px; color: #eef1f4; }
+  .subtitle { font-size: 10.5px; letter-spacing: 3px; color: #4fc3f7; }
+
+  .tabs { display: flex; flex-direction: row; gap: 2px; background: #141619; border: 1px solid #23262b; }
+  .tab-btn {
+    background: transparent; border: none; color: #8b929b; padding: 10px 24px;
+    font-family: 'Oswald', sans-serif; font-size: 13px; letter-spacing: 1.5px; cursor: pointer;
+  }
+  .tab-btn.active { background: #1d2126; color: #4fc3f7; }
+
+  main { flex-grow: 1; display: flex; flex-direction: row; gap: 1px; background: #23262b; }
+
+  .panel { background: #101215; padding: 24px; display: flex; flex-direction: column; gap: 18px; }
+  .panel-title { font-size: 13px; letter-spacing: 2px; color: #8b929b; font-family: 'Oswald', sans-serif; }
+
+  .side-left { width: 300px; flex-shrink: 0; }
+  .side-right { width: 340px; flex-shrink: 0; overflow-y: auto; }
+  .viewer-col { flex-grow: 1; display: flex; flex-direction: column; padding: 0; position: relative; background: #0d0f11; }
+
+  .stat-row { display: flex; flex-direction: column; gap: 4px; }
+  .stat-label { display: flex; flex-direction: row; justify-content: space-between; font-size: 12.5px; color: #9aa0a7; }
+  .stat-track { position: relative; height: 4px; background: #1c1f23; }
+  .stat-fill { position: absolute; top: 0; left: 0; bottom: 0; background: #4fc3f7; }
+
+  #gunCanvas { flex-grow: 1; touch-action: none; cursor: grab; }
+  #gunCanvas.dragging { cursor: grabbing; }
+  .viewer-hint {
+    text-align: center; padding: 10px; font-size: 11px; letter-spacing: 2px; color: #5c636b;
+    border-top: 1px solid #1c1f23;
+  }
+  .viewer-label {
+    position: absolute; top: 20px; left: 24px; display: flex; flex-direction: column; gap: 2px;
+  }
+
+  .slot-card { display: flex; flex-direction: column; gap: 8px; }
+  .slot-name { font-size: 11px; letter-spacing: 2px; color: #6b7178; font-family: 'Oswald', sans-serif; }
+  .opt-row { display: flex; flex-direction: column; gap: 6px; }
+  .opt-btn {
+    background: #15171a; border: 1px solid #23262b; color: #c3c8ce; text-align: left;
+    padding: 10px 12px; font-size: 13.5px; cursor: pointer; min-height: 44px;
+    display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+  }
+  .opt-btn .price { font-family: 'Share Tech Mono', monospace; font-size: 10.5px; color: #5c636b; }
+  .opt-btn.active { border-color: #4fc3f7; background: #142129; color: #eef1f4; }
+  .opt-btn.active .price { color: #4fc3f7; }
+
+  .price-bar { display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 18px 24px; border-top: 1px solid #23262b; background: #101215; }
+  .buy-btn { background: #4fc3f7; border: none; padding: 14px 46px; cursor: pointer; }
+  .buy-btn span { font-family: 'Oswald', sans-serif; font-size: 15px; letter-spacing: 2px; color: #06222c; font-weight: 600; }
+
+  #viewUniform { display: none; flex-direction: row; flex-grow: 1; }
+</style>
+</head>
+<body>
+<div class="app-bg"></div>
+
+<header>
+  <div class="logo-row">
+    <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+      <circle cx="15" cy="15" r="12" stroke="#4fc3f7" stroke-width="1.4"/>
+      <path d="M15 7v16M7 15h16" stroke="#4fc3f7" stroke-width="1.2" opacity="0.7"/>
+    </svg>
+    <div>
+      <div class="title">ГРАНЬ ВОЙНЫ</div>
+      <div class="subtitle mono">МАСТЕРСКАЯ ОРУЖИЯ</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button id="tabWeapon" class="tab-btn active">ОРУЖИЕ</button>
+    <button id="tabUniform" class="tab-btn">ЭКИПИРОВКА</button>
+  </div>
+  <div class="mono" style="font-size:13px; color:#9aa0a7;">WOLF-3</div>
+</header>
+
+<!-- ===== WEAPON VIEW ===== -->
+<main id="viewWeapon">
+  <div class="panel side-left">
+    <div class="panel-title">ХАРАКТЕРИСТИКИ</div>
+    <div id="weaponStats" style="display:flex; flex-direction:column; gap:14px;"></div>
+  </div>
+
+  <div class="viewer-col">
+    <div class="viewer-label">
+      <div class="oswald" style="font-size:20px; color:#eef1f4; letter-spacing:1px;">M4A1</div>
+      <div id="weaponChipsLine" class="mono" style="font-size:11px; color:#5c636b;"></div>
+    </div>
+    <canvas id="gunCanvas"></canvas>
+    <div class="viewer-hint mono">ЗАЖМИТЕ И ПОТЯНИТЕ, ЧТОБЫ ПОВЕРНУТЬ</div>
+  </div>
+
+  <div class="panel side-right">
+    <div class="panel-title">СБОРКА</div>
+    <div id="weaponSlots" style="display:flex; flex-direction:column; gap:20px;"></div>
+  </div>
+</main>
+
+<!-- ===== UNIFORM VIEW ===== -->
+<main id="viewUniform">
+  <div class="panel side-left">
+    <div class="panel-title">СОСТАВ КОМПЛЕКТА</div>
+    <div id="uniformSummary" style="display:flex; flex-direction:column; gap:10px;"></div>
+  </div>
+  <div class="viewer-col" style="align-items:center; justify-content:center; display:flex;">
+    <svg width="180" height="360" viewBox="0 0 180 360" fill="none">
+      <circle cx="90" cy="36" r="26" fill="#15171a" stroke="#2a2d31"/>
+      <rect x="50" y="66" width="80" height="120" rx="10" fill="#181b1e" stroke="#2a2d31"/>
+      <rect x="58" y="80" width="64" height="70" rx="4" fill="#0d0f11" stroke="#2a2d31"/>
+      <rect x="20" y="72" width="26" height="90" rx="8" fill="#181b1e" stroke="#2a2d31"/>
+      <rect x="134" y="72" width="26" height="90" rx="8" fill="#181b1e" stroke="#2a2d31"/>
+      <rect x="55" y="186" width="30" height="120" rx="8" fill="#181b1e" stroke="#2a2d31"/>
+      <rect x="95" y="186" width="30" height="120" rx="8" fill="#181b1e" stroke="#2a2d31"/>
+    </svg>
+  </div>
+  <div class="panel side-right">
+    <div class="panel-title">СЛОТЫ</div>
+    <div id="uniformSlots" style="display:flex; flex-direction:column; gap:20px;"></div>
+  </div>
+</main>
+
+<div id="priceBarWeapon" class="price-bar">
+  <span class="mono" style="font-size:11px; letter-spacing:1px; color:#8b929b;">ИТОГО</span>
+  <span id="weaponPrice" class="mono" style="font-size:22px; color:#4fc3f7;">0 ₽</span>
+  <button class="buy-btn"><span>ЗАВЕРШИТЬ СБОРКУ</span></button>
+</div>
+<div id="priceBarUniform" class="price-bar" style="display:none;">
+  <span class="mono" style="font-size:11px; letter-spacing:1px; color:#8b929b;">ИТОГО</span>
+  <span id="uniformPrice" class="mono" style="font-size:22px; color:#4fc3f7;">0 ₽</span>
+  <button class="buy-btn"><span>КУПИТЬ</span></button>
+</div>
+
+<script>
+// ======================================================================
+// Данные (демо — замените реальным прайсом/classname-whitelist с сервера)
+// ======================================================================
+var weaponBase = { verticalRecoil: 62, horizontalRecoil: 58, ergonomics: 55, accuracy: 48, price: 499 };
+
+var weaponSlotDefs = [
+  { key: 'optic', label: 'Оптика', options: [
+      { id: 'none',  label: 'Без прицела', price: 0,   d: {} },
+      { id: 'kobra', label: 'Kobra',       price: 149, d: { ergonomics: 5, accuracy: 8 } },
+      { id: 'acog',  label: 'ACOG 4x',     price: 299, d: { ergonomics: -3, accuracy: 20 } }
+  ]},
+  { key: 'muzzle', label: 'Дульная насадка', options: [
+      { id: 'none', label: 'Без насадки',   price: 0,   d: {} },
+      { id: 'flash',label: 'Пламегаситель', price: 79,  d: { verticalRecoil: 3 } },
+      { id: 'supp', label: 'Глушитель',     price: 179, d: { verticalRecoil: 8, horizontalRecoil: 5 } }
+  ]},
+  { key: 'bipod', label: 'Сошки', options: [
+      { id: 'none', label: 'Без сошек', price: 0,  d: {} },
+      { id: 'std',  label: 'Сошки',     price: 99, d: { verticalRecoil: 12, ergonomics: -6 } }
+  ]}
+];
+
+var uniformSlotDefs = [
+  { key: 'camo', label: 'Расцветка', options: [
+      { id: 'multicam', label: 'Мультикам', price: 799 },
+      { id: 'olive',    label: 'Олива',     price: 799 },
+      { id: 'black',    label: 'Чёрный',    price: 849 }
+  ]},
+  { key: 'vest', label: 'Разгрузка', options: [
+      { id: 'none',  label: 'Без разгрузки', price: 0 },
+      { id: 'plate', label: 'Плитоноска',    price: 599 }
+  ]},
+  { key: 'backpack', label: 'Рюкзак', options: [
+      { id: 'none',    label: 'Без рюкзака',      price: 0 },
+      { id: 'assault', label: 'Штурмовой рюкзак', price: 349 }
+  ]},
+  { key: 'headgear', label: 'Головной убор', options: [
+      { id: 'none',   label: 'Без головного убора', price: 0 },
+      { id: 'boonie', label: 'Панама',               price: 149 },
+      { id: 'helmet', label: 'Тактический шлем',     price: 399 }
+  ]}
+];
+
+var weaponState = { optic: 'none', muzzle: 'none', bipod: 'none' };
+var uniformState = { camo: 'multicam', vest: 'none', backpack: 'none', headgear: 'none' };
+
+function findOption(defs, key, id) {
+  var def = defs.filter(function (d) { return d.key === key; })[0];
+  return def.options.filter(function (o) { return o.id === id; })[0];
+}
+
+function renderSlots(containerId, defs, state, onChange) {
+  var container = document.getElementById(containerId);
+  container.innerHTML = '';
+  defs.forEach(function (def) {
+    var card = document.createElement('div');
+    card.className = 'slot-card';
+    var title = document.createElement('div');
+    title.className = 'slot-name';
+    title.textContent = def.label;
+    card.appendChild(title);
+
+    var row = document.createElement('div');
+    row.className = 'opt-row';
+    def.options.forEach(function (opt) {
+      var btn = document.createElement('button');
+      btn.className = 'opt-btn' + (state[def.key] === opt.id ? ' active' : '');
+      btn.innerHTML = '<span>' + opt.label + '</span><span class="price mono">' + (opt.price ? '+' + opt.price + ' ₽' : 'база') + '</span>';
+      btn.onclick = function () { state[def.key] = opt.id; onChange(); };
+      row.appendChild(btn);
+    });
+    card.appendChild(row);
+    container.appendChild(card);
+  });
+}
+
+function renderWeapon() {
+  renderSlots('weaponSlots', weaponSlotDefs, weaponState, renderWeapon);
+
+  var stats = Object.assign({}, weaponBase);
+  var price = weaponBase.price;
+  var chips = [];
+  weaponSlotDefs.forEach(function (def) {
+    var opt = findOption(weaponSlotDefs, def.key, weaponState[def.key]);
+    price += opt.price;
+    if (opt.id !== 'none') chips.push(opt.label);
+    Object.keys(opt.d || {}).forEach(function (k) { stats[k] += opt.d[k]; });
+  });
+
+  var statsEl = document.getElementById('weaponStats');
+  var statDefs = [
+    ['verticalRecoil', 'Верт. отдача'],
+    ['horizontalRecoil', 'Гориз. отдача'],
+    ['ergonomics', 'Эргономика'],
+    ['accuracy', 'Точность']
+  ];
+  statsEl.innerHTML = '';
+  statDefs.forEach(function (s) {
+    var val = Math.max(0, Math.min(100, stats[s[0]]));
+    var row = document.createElement('div');
+    row.className = 'stat-row';
+    row.innerHTML = '<div class="stat-label"><span>' + s[1] + '</span><span class="mono">' + Math.round(stats[s[0]]) + '</span></div>' +
+      '<div class="stat-track"><div class="stat-fill" style="width:' + val + '%;"></div></div>';
+    statsEl.appendChild(row);
+  });
+
+  document.getElementById('weaponPrice').textContent = price.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('weaponChipsLine').textContent = chips.length ? chips.join(' · ') : 'БАЗОВАЯ КОМПЛЕКТАЦИЯ';
+
+  updateGunAttachments();
+}
+
+function renderUniform() {
+  renderSlots('uniformSlots', uniformSlotDefs, uniformState, renderUniform);
+  var price = 0;
+  var summaryEl = document.getElementById('uniformSummary');
+  summaryEl.innerHTML = '';
+  uniformSlotDefs.forEach(function (def) {
+    var opt = findOption(uniformSlotDefs, def.key, uniformState[def.key]);
+    price += opt.price;
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex; flex-direction:row; justify-content:space-between; font-size:13.5px; color:#c3c8ce;';
+    row.innerHTML = '<span>' + def.label + '</span><span style="color:#8b929b;">' + opt.label + '</span>';
+    summaryEl.appendChild(row);
+  });
+  document.getElementById('uniformPrice').textContent = price.toLocaleString('ru-RU') + ' ₽';
+}
+
+document.getElementById('tabWeapon').onclick = function () {
+  document.getElementById('tabWeapon').classList.add('active');
+  document.getElementById('tabUniform').classList.remove('active');
+  document.getElementById('viewWeapon').style.display = 'flex';
+  document.getElementById('viewUniform').style.display = 'none';
+  document.getElementById('priceBarWeapon').style.display = 'flex';
+  document.getElementById('priceBarUniform').style.display = 'none';
+};
+document.getElementById('tabUniform').onclick = function () {
+  document.getElementById('tabUniform').classList.add('active');
+  document.getElementById('tabWeapon').classList.remove('active');
+  document.getElementById('viewUniform').style.display = 'flex';
+  document.getElementById('viewWeapon').style.display = 'none';
+  document.getElementById('priceBarWeapon').style.display = 'none';
+  document.getElementById('priceBarUniform').style.display = 'flex';
+};
+
+// ======================================================================
+// 3D-просмотрщик оружия (Three.js). Процедурная low-poly "болванка" —
+// собрана из примитивов, не настоящий 3D-скан оружия. Для боевого сайта
+// сюда подставляется реальная 3D-модель (GLB) от 3D-художника — сама
+// сцена/вращение/переключение насадок останутся теми же.
+// ======================================================================
+var canvas = document.getElementById('gunCanvas');
+var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+var scene = new THREE.Scene();
+var camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+camera.position.set(0, 0.35, 6.2);
+camera.lookAt(0, 0, 0);
+
+scene.add(new THREE.AmbientLight(0x8899aa, 0.6));
+var key = new THREE.DirectionalLight(0xffffff, 1.1);
+key.position.set(3, 4, 5);
+scene.add(key);
+var rim = new THREE.DirectionalLight(0x4fc3f7, 0.5);
+rim.position.set(-4, 2, -3);
+scene.add(rim);
+
+var gunGroup = new THREE.Group();
+scene.add(gunGroup);
+
+var metalDark = new THREE.MeshStandardMaterial({ color: 0x2a2d31, metalness: 0.7, roughness: 0.45 });
+var metalDarker = new THREE.MeshStandardMaterial({ color: 0x1b1d20, metalness: 0.7, roughness: 0.4 });
+var polymer = new THREE.MeshStandardMaterial({ color: 0x15171a, metalness: 0.2, roughness: 0.7 });
+var railMat = new THREE.MeshStandardMaterial({ color: 0x35383d, metalness: 0.6, roughness: 0.5 });
+var accentMat = new THREE.MeshStandardMaterial({ color: 0x4fc3f7, metalness: 0.3, roughness: 0.3, emissive: 0x0d3a4d, emissiveIntensity: 0.6 });
+
+function box(w, h, d, mat) { return new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat); }
+function cyl(r1, r2, h, mat, seg) { var m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r2, h, seg || 16), mat); m.rotation.z = Math.PI / 2; return m; }
+
+// --- база (всегда видна) ---
+var receiver = box(2.6, 0.32, 0.28, metalDark); receiver.position.x = 0.3; gunGroup.add(receiver);
+var rail = box(1.9, 0.05, 0.16, railMat); rail.position.set(0.55, 0.19, 0); gunGroup.add(rail);
+var barrel = cyl(0.055, 0.055, 1.4, metalDarker); barrel.position.x = 1.9; gunGroup.add(barrel);
+var handguard = box(1.1, 0.26, 0.26, metalDark); handguard.position.x = 1.35; gunGroup.add(handguard);
+var stock = box(0.9, 0.26, 0.2, polymer); stock.position.set(-1.5, -0.02, 0); gunGroup.add(stock);
+var grip = box(0.16, 0.55, 0.2, polymer); grip.position.set(-0.15, -0.42, 0); grip.rotation.z = -0.18; gunGroup.add(grip);
+var mag = box(0.22, 0.9, 0.24, polymer); mag.position.set(0.2, -0.75, 0); mag.rotation.z = 0.14; gunGroup.add(mag);
+var triggerGuard = box(0.3, 0.08, 0.2, metalDark); triggerGuard.position.set(-0.05, -0.28, 0); gunGroup.add(triggerGuard);
+
+// --- сменные модули (насадки) ---
+var opticMeshes = {};
+(function () {
+  var kobra = new THREE.Group();
+  var body = box(0.2, 0.16, 0.16, metalDark); kobra.add(body);
+  var lens = new THREE.Mesh(new THREE.CircleGeometry(0.045, 12), accentMat);
+  lens.position.set(0, 0, 0.09); kobra.add(lens);
+  kobra.position.set(0.55, 0.31, 0);
+  gunGroup.add(kobra); opticMeshes.kobra = kobra;
+
+  var acog = new THREE.Group();
+  var tube = cyl(0.09, 0.09, 0.5, metalDark, 16); acog.add(tube);
+  var mount = box(0.1, 0.14, 0.12, metalDark); mount.position.y = -0.12; acog.add(mount);
+  acog.position.set(0.65, 0.33, 0);
+  gunGroup.add(acog); opticMeshes.acog = acog;
+})();
+
+var muzzleMeshes = {};
+(function () {
+  var flash = new THREE.Mesh(new THREE.ConeGeometry(0.075, 0.2, 8), metalDarker);
+  flash.rotation.z = -Math.PI / 2; flash.position.x = 2.7;
+  gunGroup.add(flash); muzzleMeshes.flash = flash;
+
+  var supp = cyl(0.09, 0.09, 0.55, metalDarker, 16);
+  supp.position.x = 2.85;
+  gunGroup.add(supp); muzzleMeshes.supp = supp;
+})();
+
+var bipodMeshes = {};
+(function () {
+  var std = new THREE.Group();
+  var leg1 = cyl(0.02, 0.02, 0.5, metalDark, 8); leg1.position.set(2.15, -0.28, 0.12); leg1.rotation.x = 0.45;
+  var leg2 = cyl(0.02, 0.02, 0.5, metalDark, 8); leg2.position.set(2.15, -0.28, -0.12); leg2.rotation.x = -0.45;
+  std.add(leg1, leg2);
+  gunGroup.add(std); bipodMeshes.std = std;
+})();
+
+function updateGunAttachments() {
+  Object.keys(opticMeshes).forEach(function (k) { opticMeshes[k].visible = weaponState.optic === k; });
+  Object.keys(muzzleMeshes).forEach(function (k) { muzzleMeshes[k].visible = weaponState.muzzle === k; });
+  Object.keys(bipodMeshes).forEach(function (k) { bipodMeshes[k].visible = weaponState.bipod === k; });
+}
+
+gunGroup.rotation.y = -0.5;
+
+function resizeRenderer() {
+  var w = canvas.clientWidth, h = canvas.clientHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resizeRenderer);
+
+// --- вращение перетаскиванием ---
+var dragging = false, lastX = 0, lastY = 0, idleSpin = true;
+canvas.addEventListener('pointerdown', function (e) {
+  dragging = true; idleSpin = false; canvas.classList.add('dragging');
+  lastX = e.clientX; lastY = e.clientY;
+  canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove', function (e) {
+  if (!dragging) return;
+  var dx = e.clientX - lastX, dy = e.clientY - lastY;
+  lastX = e.clientX; lastY = e.clientY;
+  gunGroup.rotation.y += dx * 0.008;
+  gunGroup.rotation.x = Math.max(-0.6, Math.min(0.6, gunGroup.rotation.x + dy * 0.008));
+});
+window.addEventListener('pointerup', function () { dragging = false; canvas.classList.remove('dragging'); });
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (!dragging && idleSpin) gunGroup.rotation.y += 0.0025;
+  renderer.render(scene, camera);
+}
+
+resizeRenderer();
+renderWeapon();
+renderUniform();
+animate();
+</script>
+</body>
+</html>
